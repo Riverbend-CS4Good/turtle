@@ -1,0 +1,8 @@
+
+/*
+  Do not match general global items like h1, always specify a class or match within a
+  named tag (e.g., "#game h1 { color: red; }" matches h1 only within the game).
+*/
+
+/* Probably want to change this */
+#game { color: red; }

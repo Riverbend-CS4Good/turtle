@@ -1,0 +1,5 @@
+
+The following people have contributed to this project. When you contribute,
+feel free to add your name and description of your contribution to this file.
+
+* Dean Serenevy: Initial template and sample contributor entry
