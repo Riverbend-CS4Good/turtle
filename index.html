@@ -1,25 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <title>Sample app</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <link rel="stylesheet" href="https://riverbendmath.org/css/main.css" type="text/css" />
   <link rel="stylesheet" href="style.css" type="text/css" />
-  <script type="text/javascript" src="project.js"></script>
+  <!-- <script type="text/javascript" src="project.js"></script> -->
+  <style>
+    #inner {
+      position: relative;
+      margin: 0;
+      padding: 0;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      overflow: hidden;
+      border: solid black 3px;
+      margin: 5vh 5vw;
+      width: 90vw;
+      height: 80vh;
+    }
+
+    #inner #turtle,
+    #inner #sandbox {
+      position: absolute;
+    }
+  </style>
 </head>
+
 <body>
+  <div id="display-panel" class="panel">
+    <div id="display">
+      <div id="inner">
+        <canvas id="sandbox" width="720" height="1080"></canvas>
+        <canvas id="turtle" width="720" height="1080"></canvas>
+      </div>
+      <div style="margin-bottom:10px">
+        <button id="forward">Forward</button>
+        <button id="backward">Backward</button>
+        <input type="number" id="distance" /> Pixels
+      </div>
+      <div>
+        <button id="left">Left</button>
+        <button id="right">Right</button>
+        <input type="number" id="angle" />
+        Degrees
+      </div>
 
-<div>
-  <!-- Left Side -->
-  <div>
 
+    </div>
   </div>
-  <!-- Right Side -->
-  <div>
 
-
-  </div>
-</div>
 
 </body>
+<script type="text/javascript" src="test.js"></script>
+
 </html>
