@@ -12,19 +12,8 @@ let rightBtn = document.getElementById('right');
 
 let distance = document.getElementById('distance');
 let ang = document.getElementById('angle');
-let middlex = 0, middley = 0;
-let displacementX = 0, displacementY = 0;
-let angle = -Math.PI / 2;
 
-let prevPoints = [0, 0];
-
-// ctx.moveTo(90, 130);
-// ctx.lineTo(95, 25);
-// ctx.lineTo(150, 80);
-// ctx.lineTo(205, 25);
-// ctx.lineTo(210, 130);
-// ctx.lineWidth = 15;
-
+let middlex, middley, displacementX, displacementY, angle, prevPoints;
 
 window.addEventListener('resize', resize);
 window.addEventListener('DOMContentLoaded', resize);
@@ -40,7 +29,6 @@ function resize() {
     displacementY = 0;
     prevPoints = [0, 0];
     angle = -Math.PI / 2;
-    // draw()
     draw()
     console.log(prevPoints);
 }
@@ -52,7 +40,7 @@ backwardBtn.addEventListener('click', () => move('backward'));
 function move(direction) {
     if (distance.value.trim() === "") {
         console.log("Input is empty or only whitespace.");
-        return; // Exit the function if input is empty
+        return;
     }
     let displacement = distance.value;
     r = angle;
