@@ -10,10 +10,9 @@ let backwardBtn = document.getElementById('backward');
 let leftBtn = document.getElementById('left');
 let rightBtn = document.getElementById('right');
 
-let distance = document.getElementById('distance');
-let ang = document.getElementById('angle');
+let input = document.getElementById('input');
 
-let middlex, middley, displacementX, displacementY, angle, prevPoints;
+let middle, displacement, angle, prevPoints;
 
 window.addEventListener('resize', resize);
 window.addEventListener('DOMContentLoaded', resize);
@@ -24,47 +23,49 @@ function resize() {
     let h = rect.height;
     sandbox.width = w; sandbox.height = h;
     turtle_canvas.width = w; turtle_canvas.height = h;
-    middlex = w / 2; middley = h / 2;
-    displacementX = 0;
-    displacementY = 0;
+    middle = [w / 2, h / 2];
+    displacement = [0, 0];
     prevPoints = [0, 0];
     angle = -Math.PI / 2;
     draw()
     console.log(prevPoints);
 }
 
+function getInput() {
+    if (input.value.trim() === "") {
+        return 0;
+    }
+    return input.value;
+}
 
-forwardBtn.addEventListener('click', () => move('forward'));
-backwardBtn.addEventListener('click', () => move('backward'));
+forwardBtn.addEventListener('click', () => move('forward', getInput()));
+backwardBtn.addEventListener('click', () => move('backward', getInput()));
+leftBtn.addEventListener('click', () => turn('left', getInput()));
+rightBtn.addEventListener('click', () => turn('right', getInput()));
 
-function move(direction) {
-    if (distance.value.trim() === "") {
-        console.log("Input is empty or only whitespace.");
+
+function move(direction, d) {
+    if (d === 0) {
         return;
     }
-    let displacement = distance.value;
     r = angle;
     if (direction === 'backward') {
         r += Math.PI;
     }
-    x = displacementX + displacement * Math.cos(r);
-    y = displacementY + displacement * Math.sin(r);
-    displacementX = x;
-    displacementY = y;
+    x = displacement[0] + d * Math.cos(r);
+    y = displacement[1] + d * Math.sin(r);
+    displacement[0] = x;
+    displacement[1] = y;
     draw();
-    prevPoints = [displacementX, displacementY]
+    prevPoints = [displacement[0], displacement[1]]
 
 }
 
-leftBtn.addEventListener('click', () => turn('left'));
-rightBtn.addEventListener('click', () => turn('right'));
-function turn(direction) {
+function turn(direction, a) {
     function deg2rad(d) { return d / 180 * Math.PI; }
-    if (ang.value.trim() === "") {
-        console.log("Input is empty or only whitespace.");
-        return; // Exit the function if input is empty
+    if (a === 0) {
+        return;
     }
-    let a = ang.value;
     if (direction === 'left') {
         angle -= deg2rad(a);
     } else if (direction === 'right') {
@@ -82,17 +83,17 @@ function draw() {
     drawbackground();
 }
 function drawbackground() {
-    console.log('hi')
     sandbox_ctx.beginPath();
-    sandbox_ctx.moveTo(middlex + prevPoints[0], middley + prevPoints[1]);
-    sandbox_ctx.lineTo(middlex + displacementX, middley + displacementY);
+    sandbox_ctx.moveTo(middle[0] + prevPoints[0], middle[1] + prevPoints[1]);
+    sandbox_ctx.lineTo(middle[0] + displacement[0], middle[1] + displacement[1]);
     sandbox_ctx.stroke();
 }
+
 function drawturtle() {
     function invert(p) { return [-p[0], p[1]]; }
     function _draw(ctx) {
         ctx.save();
-        ctx.translate(middlex + displacementX, middley + displacementY);
+        ctx.translate(middle[0] + displacement[0], middle[1] + displacement[1]);
         ctx.rotate(Math.PI / 2 + angle);
         ctx.beginPath();
 
