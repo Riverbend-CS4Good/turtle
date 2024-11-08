@@ -24,6 +24,8 @@ function resize() {
     let h = rect.height;
     sandbox.width = w; sandbox.height = h;
     turtle_canvas.width = w; turtle_canvas.height = h;
+
+    //reset everything to 0
     middle = [w / 2, h / 2];
     displacement = [0, 0];
     prevPoints = [0, 0];
@@ -32,6 +34,7 @@ function resize() {
     console.log(prevPoints);
 }
 
+//used for testing
 function getInput() {
     if (input.value.trim() === "") {
         return 0;
@@ -45,6 +48,7 @@ leftBtn.addEventListener('click', () => turn('left', getInput()));
 rightBtn.addEventListener('click', () => turn('right', getInput()));
 directionBtn.addEventListener('click', () => setDirection(getInput()));
 
+//functions
 function move(direction, d) {
     if (d === 0) {
         return;
@@ -52,6 +56,9 @@ function move(direction, d) {
     r = angle;
     if (direction === 'backward') {
         r += Math.PI;
+    } else if (direction !== 'forward') {
+        console.log('wrong usage turn');
+        return;
     }
     x = displacement[0] + d * Math.cos(r);
     y = displacement[1] + d * Math.sin(r);
@@ -61,7 +68,9 @@ function move(direction, d) {
     prevPoints = [displacement[0], displacement[1]]
 
 }
+
 function deg2rad(d) { return d / 180 * Math.PI; }
+
 function turn(direction, a) {
 
     if (a === 0) {
@@ -81,6 +90,8 @@ function setDirection(a) {
     angle = -Math.PI / 2 + deg2rad(a)
     draw();
 }
+
+//drawing turtle and trails
 function draw() {
     drawturtle();
     drawbackground();
