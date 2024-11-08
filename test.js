@@ -9,6 +9,7 @@ let forwardBtn = document.getElementById('forward');
 let backwardBtn = document.getElementById('backward');
 let leftBtn = document.getElementById('left');
 let rightBtn = document.getElementById('right');
+let directionBtn = document.getElementById('direction');
 
 let input = document.getElementById('input');
 
@@ -42,7 +43,7 @@ forwardBtn.addEventListener('click', () => move('forward', getInput()));
 backwardBtn.addEventListener('click', () => move('backward', getInput()));
 leftBtn.addEventListener('click', () => turn('left', getInput()));
 rightBtn.addEventListener('click', () => turn('right', getInput()));
-
+directionBtn.addEventListener('click', () => setDirection(getInput()));
 
 function move(direction, d) {
     if (d === 0) {
@@ -60,9 +61,9 @@ function move(direction, d) {
     prevPoints = [displacement[0], displacement[1]]
 
 }
-
+function deg2rad(d) { return d / 180 * Math.PI; }
 function turn(direction, a) {
-    function deg2rad(d) { return d / 180 * Math.PI; }
+
     if (a === 0) {
         return;
     }
@@ -75,8 +76,10 @@ function turn(direction, a) {
         return;
     }
     draw();
-
-
+}
+function setDirection(a) {
+    angle = -Math.PI / 2 + deg2rad(a)
+    draw();
 }
 function draw() {
     drawturtle();
