@@ -15,8 +15,13 @@ let input = document.getElementById('input');
 
 let middle, displacement, angle, prevPoints;
 
+const img = new Image();
+img.src = './images/spiff.png';
+img.onload = function () {
+    resize()
+}
+
 window.addEventListener('resize', resize);
-window.addEventListener('DOMContentLoaded', resize);
 function resize() {
     let box = inner;
     let rect = box.getBoundingClientRect();
@@ -31,7 +36,7 @@ function resize() {
     prevPoints = [0, 0];
     angle = -Math.PI / 2;
     draw()
-    console.log(prevPoints);
+    // console.log(prevPoints);
 }
 
 //used for testing
@@ -104,51 +109,15 @@ function drawbackground() {
 }
 
 function drawturtle() {
-    function invert(p) { return [-p[0], p[1]]; }
-    function _draw(ctx) {
-        ctx.save();
-        ctx.translate(middle[0] + displacement[0], middle[1] + displacement[1]);
-        ctx.rotate(Math.PI / 2 + angle);
-        ctx.beginPath();
-
-        var points = [
-            [0, -20], // Head
-            [2.5, -17],
-            [3, -12],
-
-            [6, -10],
-            [9, -13], // Arm
-            [13, -12],
-            [18, -4],
-            [18, 0],
-            [14, -1],
-            [10, -7],
-
-            [8, -6], // Shell
-            [10, -2],
-            [9, 3],
-            [6, 10],
-
-            [9, 13], // Foot
-            [6, 15],
-            [3, 12],
-
-            [0, 13],
-        ];
-
-        points.concat(points.slice(1, -1).reverse().map(invert))
-            .forEach(function (pair, index) {
-                ctx[index ? 'lineTo' : 'moveTo'](pair[0], pair[1]);
-            });
-
-        ctx.closePath();
-        ctx.stroke();
-
-        ctx.restore();
-    }
     turtle_ctx.clearRect(0, 0, turtle_canvas.width, turtle_canvas.height);
-    turtle_ctx.lineCap = 'round';
-    turtle_ctx.strokeStyle = 'green';
-    turtle_ctx.lineWidth = 2;
-    _draw(turtle_ctx)
+
+    turtle_ctx.save();
+
+    turtle_ctx.translate(middle[0] + displacement[0], middle[1] + displacement[1]);
+
+    turtle_ctx.rotate(angle + Math.PI / 2);
+
+    turtle_ctx.drawImage(img, -25, -25, 50, 50);
+
+    turtle_ctx.restore();
 }
