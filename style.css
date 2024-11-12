@@ -41,7 +41,8 @@
 .left-side .content .spiff-container {
     margin: 30px;
     margin-top: 0px;
-    height: 75vh;
+    /*    height: 75vh;*/
+    height: 700px;
     width: auto;
     background-color: white;
     border: 3px solid black;
@@ -51,8 +52,8 @@
 }
 
 .left-side .content .spiff-container .spiff {
-    height: 70px;
-    width: 70px;
+    height: 30px;
+    width: 30px;
     user-select: none;
 }
 
@@ -63,12 +64,12 @@
     cursor: col-resize;
     height: 100%;
     position: absolute;
-    background-color: white;
+    background-color: black;
 }
 
 .right-side {
     flex-grow: 1;
     padding: 3% 22px;
     text-align: center;
-    background-color: navy;
+    background-color: white;
 }
