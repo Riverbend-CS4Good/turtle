@@ -6,3 +6,70 @@
 
 /* Probably want to change this */
 #game { color: red; }
+
+.site {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.left-side {
+    width: 1000px;
+    height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    background-color: gray;
+}
+
+.left-side .header {
+    text-align: center;
+    user-select: none;
+}
+
+.left-side .content {
+    
+}
+
+.left-side .content .coords {
+    margin-left: 30px;
+    user-select: none;
+}
+
+.left-side .content .spiff-container {
+    margin: 30px;
+    margin-top: 0px;
+    /*    height: 75vh;*/
+    height: 700px;
+    width: auto;
+    background-color: white;
+    border: 3px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.left-side .content .spiff-container .spiff {
+    height: 30px;
+    width: 30px;
+    user-select: none;
+}
+
+.left-side .resizer {
+    width: 4px;
+    top: 0;
+    right: 0;
+    cursor: col-resize;
+    height: 100%;
+    position: absolute;
+    background-color: black;
+}
+
+.right-side {
+    flex-grow: 1;
+    padding: 3% 22px;
+    text-align: center;
+    background-color: white;
+}
