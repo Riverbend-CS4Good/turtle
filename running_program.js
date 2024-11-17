@@ -9,7 +9,7 @@ button.addEventListener("click", () => {
     if (isPaused) {
         isPaused = false;
         button.textContent = "Pause";
-        readFile()
+        readNext()
     } else {
         isPaused = true;
         button.textContent = "Run";
@@ -17,19 +17,30 @@ button.addEventListener("click", () => {
     }
 });
 
-function readFile() {
-    if(lines.length === 0) {
-        fetch('text.txt')
-        .then(response => response.text())
-        .then(text => {
-            lines = text.split('\n');
-            readNext();
-        });
+function readSingleFile(e) {
+    var file = e.target.files[0];
+    if (!file) {
+      return;
     }
-    else {
-        readNext();
-    }
-}
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var contents = e.target.result;
+      displayContents(contents);
+    };
+    reader.readAsText(file);
+  }
+  
+  function displayContents(contents) {
+    lines = contents.split("\n");
+  }
+  
+  document.getElementById('file-input')
+    .addEventListener('change', readSingleFile, false);
+
+
+// function readFile() {
+//     readNext();
+// }
 
 function readNext() {
     intervalID = setInterval(printLine, 1000)
