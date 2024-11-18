@@ -49,7 +49,15 @@ var spiffContainerWidth = parseInt(window.getComputedStyle(spiffContainer).width
 var spiffContainerHeight = parseInt(window.getComputedStyle(spiffContainer).height, 10);
 coordsText.innerHTML = `Box size: ${spiffContainerWidth} x ${spiffContainerHeight}`;
 
+// update coordsText when you type
+var editor = document.getElementById("editor");
+var coordsText = document.querySelector(".coords");
 
+editor.addEventListener("input", function() {
+  var content = editor.value;
+  var lineCount = content.split('\n').length; 
+  coordsText.innerHTML = `Lines: ${lineCount}`;
+});
 
 
 function onReady() {
