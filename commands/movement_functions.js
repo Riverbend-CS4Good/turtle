@@ -49,20 +49,33 @@ function getInput() {
 
 forwardBtn.addEventListener('click', () => move('forward', getInput()));
 backwardBtn.addEventListener('click', () => move('backward', getInput()));
-leftBtn.addEventListener('click', () => turn('left', getInput()));
-rightBtn.addEventListener('click', () => turn('right', getInput()));
+leftBtn.addEventListener('click', () => turn('turnleft', getInput()));
+rightBtn.addEventListener('click', () => turn('turnright', getInput()));
 directionBtn.addEventListener('click', () => setDirection(getInput()));
 
+
+function action(arg1, arg2) {
+    if (arg1 === 'fw' || arg1 === 'bw' || arg1 === 'forward' || arg1 === 'backward') {
+        move(arg1, arg2);
+    } else if (arg1 === 'tl' || arg1 === 'tr' || arg1 === 'turnleft' || arg1 === 'turnright') {
+        turn(arg1, arg2);
+    } else if (arg1 === 'direction' || arg1 === 'dir') {
+        setDirection(arg2);
+    } else {
+        console.log('Wrong usage.');
+    }
+}
 //functions
 function move(direction, d) {
+    console.log(direction, d);
     if (d === 0) {
         return;
     }
     r = angle;
-    if (direction === 'backward') {
+    if (direction === 'backward' || direction === 'bw') {
         r += Math.PI;
-    } else if (direction !== 'forward') {
-        console.log('wrong usage turn');
+    } else if (direction !== 'forward' && direction !== 'fw') {
+        console.log('wrong usage');
         return;
     }
     x = displacement[0] + d * Math.cos(r);
@@ -81,9 +94,9 @@ function turn(direction, a) {
     if (a === 0) {
         return;
     }
-    if (direction === 'left') {
+    if (direction === 'turnleft' || direction === 'tl') {
         angle -= deg2rad(a);
-    } else if (direction === 'right') {
+    } else if (direction === 'turnright' || direction === 'tr') {
         angle += deg2rad(a);
     } else {
         console.log('wrong usage turn');
