@@ -88,7 +88,6 @@
     overflow-wrap: break-word; 
     border: 1px solid #ccc; 
     line-height: 1.5;
-    bottom: 0; 
   }
   
   #editor:focus {
