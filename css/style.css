@@ -16,6 +16,11 @@
     padding: 0;
 }
 
+.controls {
+    display: flex;
+    margin: 5px;
+}
+
 .left-side {
     width: 1000px;
     height: 100vh;
@@ -69,6 +74,7 @@
 
 .right-side {
     flex-grow: 1;
+    flex-direction: column;
     padding: 3% 22px;
     display: flex; 
     justify-content: center;
