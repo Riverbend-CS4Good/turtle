@@ -20,21 +20,21 @@ button.addEventListener("click", () => {
 function readSingleFile(e) {
     var file = e.target.files[0];
     if (!file) {
-      return;
+        return;
     }
     var reader = new FileReader();
-    reader.onload = function(e) {
-      var contents = e.target.result;
-      displayContents(contents);
+    reader.onload = function (e) {
+        var contents = e.target.result;
+        displayContents(contents);
     };
     reader.readAsText(file);
-  }
-  
-  function displayContents(contents) {
+}
+
+function displayContents(contents) {
     lines = contents.split("\n");
-  }
-  
-  document.getElementById('file-input')
+}
+
+document.getElementById('file-input')
     .addEventListener('change', readSingleFile, false);
 
 
@@ -47,13 +47,15 @@ function readNext() {
 }
 
 function printLine() {
-    if(currentLine < lines.length && !isPaused) {
+    if (currentLine < lines.length && !isPaused) {
         console.log(lines[currentLine]);
+        let args = lines[currentLine].split(" ");
+        action(args[0], Number(args[1]));
         currentLine++;
     }
     else {
         clearInterval(intervalID)
-        if(currentLine >= lines.length) {
+        if (currentLine >= lines.length) {
             button.textContent = "Finished";
         }
     }

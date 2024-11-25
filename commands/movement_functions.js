@@ -5,13 +5,13 @@ let turtle_ctx = turtle_canvas.getContext('2d');
 let sandbox_ctx = sandbox_canvas.getContext('2d');
 let inner = document.getElementById('inner');
 
-let forwardBtn = document.getElementById('forward');
-let backwardBtn = document.getElementById('backward');
-let leftBtn = document.getElementById('left');
-let rightBtn = document.getElementById('right');
-let directionBtn = document.getElementById('direction');
+// let forwardBtn = document.getElementById('forward');
+// let backwardBtn = document.getElementById('backward');
+// let leftBtn = document.getElementById('left');
+// let rightBtn = document.getElementById('right');
+// let directionBtn = document.getElementById('direction');
 
-let input = document.getElementById('input');
+// let input = document.getElementById('input');
 
 let middle, displacement, angle, prevPoints;
 
@@ -23,6 +23,7 @@ img.onload = function () {
 
 window.addEventListener('resize', resize);
 function resize() {
+    console.log("resizing");
     let box = inner;
     let rect = box.getBoundingClientRect();
     let w = rect.width;
@@ -47,21 +48,32 @@ function getInput() {
     return input.value;
 }
 
-forwardBtn.addEventListener('click', () => move('forward', getInput()));
-backwardBtn.addEventListener('click', () => move('backward', getInput()));
-leftBtn.addEventListener('click', () => turn('left', getInput()));
-rightBtn.addEventListener('click', () => turn('right', getInput()));
-directionBtn.addEventListener('click', () => setDirection(getInput()));
+// forwardBtn.addEventListener('click', () => move('forward', getInput()));
+// backwardBtn.addEventListener('click', () => move('backward', getInput()));
+// leftBtn.addEventListener('click', () => turn('turnleft', getInput()));
+// rightBtn.addEventListener('click', () => turn('turnright', getInput()));
+// directionBtn.addEventListener('click', () => setDirection(getInput()));
 
+function action(arg1, arg2) {
+    if (arg1 === 'fw' || arg1 === 'bw' || arg1 === 'forward' || arg1 === 'backward') {
+        move(arg1, arg2);
+    } else if (arg1 === 'tl' || arg1 === 'tr' || arg1 === 'turnleft' || arg1 === 'turnright') {
+        turn(arg1, arg2);
+    } else if (arg1 === 'direction' || arg1 === 'dir') {
+        setDirection(arg2);
+    } else {
+        console.log('Wrong usage.');
+    }
+}
 //functions
 function move(direction, d) {
     if (d === 0) {
         return;
     }
     r = angle;
-    if (direction === 'backward') {
+    if (direction === 'backward' || direction === 'bw') {
         r += Math.PI;
-    } else if (direction !== 'forward') {
+    } else if (direction !== 'forward' && direction !== 'fw') {
         console.log('wrong usage turn');
         return;
     }
@@ -81,9 +93,9 @@ function turn(direction, a) {
     if (a === 0) {
         return;
     }
-    if (direction === 'left') {
+    if (direction === 'turnleft' || direction === 'tl') {
         angle -= deg2rad(a);
-    } else if (direction === 'right') {
+    } else if (direction === 'turnright' || direction === 'tr') {
         angle += deg2rad(a);
     } else {
         console.log('wrong usage turn');

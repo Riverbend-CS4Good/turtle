@@ -19,6 +19,10 @@
       </div>
       <div class="content">
         <div class="coords">Box size: </div>
+        <div id="inner">
+          <canvas id="sandbox"></canvas>
+          <canvas id="turtle"></canvas>
+        </div>
         <div class="spiff-container">
           <img src="images/spiff.png" class="spiff">
         </div>
@@ -35,12 +39,14 @@
         <button class="run-button">Run</button>
       </div>
       <textarea id="editor" placeholder="Type here..."></textarea>
-      
+
     </div>
   </div>
   <!-- <script type="text/javascript" src="resizer.js"></script> -->
-  <script type="text/javascript" src="running_program.js"></script>
+
   <script type="text/javascript" src="project.js"></script>
+  <script type="text/javascript" src="./commands/movement_functions.js"></script>
+  <script type="text/javascript" src="running_program.js"></script>
 </body>
 
 </html>
