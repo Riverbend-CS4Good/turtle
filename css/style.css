@@ -42,10 +42,9 @@
     user-select: none;
 }
 
-.left-side .content .spiff-container {
+/* .left-side .content .spiff-container {
     margin: 30px;
     margin-top: 0px;
-    /*    height: 75vh;*/
     height: 700px;
     width: auto;
     background-color: white;
@@ -53,7 +52,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-}
+} */
 
 #inner {
     position: relative;
@@ -68,7 +67,7 @@
     bottom: 0;
     overflow: hidden;
     border: solid black 3px;
-    margin: 5vh 5vw;
+    margin: 5vh 30px;
 }
 
 #inner #turtle,

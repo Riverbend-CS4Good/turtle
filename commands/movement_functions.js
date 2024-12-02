@@ -129,7 +129,7 @@ function drawturtle() {
 
     turtle_ctx.rotate(angle + Math.PI / 2);
 
-    turtle_ctx.drawImage(img, -25, -25, 50, 50);
+    turtle_ctx.drawImage(img, -18, -18, 36, 36);
 
     turtle_ctx.restore();
 }
