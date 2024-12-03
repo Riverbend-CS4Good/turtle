@@ -1,21 +1,34 @@
-let runButtonClass = document.getElementsByClassName('run-button');
-const button = runButtonClass[0]
+const runButton = document.getElementById('run-button');
+const saveButton = document.getElementById('save-button');
 let isPaused = true; // Initial state is paused
 let lines = []; // Array to hold each line of the file
+const fileInput = document.getElementById('file-input');
+const input = document.getElementById('editor');
 let currentLine = 0;
 let intervalID = null;
 
-button.addEventListener("click", () => {
+runButton.addEventListener("click", () => {
     if (isPaused) {
         isPaused = false;
-        button.textContent = "Pause";
+        runButton.textContent = "Pause";
         readNext()
     } else {
         isPaused = true;
-        button.textContent = "Run";
+        runButton.textContent = "Run";
         clearInterval(intervalID)
     }
 });
+
+saveButton.addEventListener("click", () => {
+    var text = input.value;
+    fileInput.value = '';
+    console.log(text);
+    displayContents(text);
+    saveButton.textContent = "Saved";
+});
+input.addEventListener('input', () => {
+    saveButton.textContent = "Save";
+})
 
 function readSingleFile(e) {
     var file = e.target.files[0];
@@ -56,7 +69,7 @@ function printLine() {
     else {
         clearInterval(intervalID)
         if (currentLine >= lines.length) {
-            button.textContent = "Finished";
+            runButton.textContent = "Finished";
         }
     }
 }
