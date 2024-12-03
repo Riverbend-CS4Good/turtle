@@ -22,10 +22,10 @@ runButton.addEventListener("click", () => {
 saveButton.addEventListener("click", () => {
     var text = input.value;
     fileInput.value = '';
-    console.log(text);
     displayContents(text);
     saveButton.textContent = "Saved";
 });
+
 input.addEventListener('input', () => {
     saveButton.textContent = "Save";
 })

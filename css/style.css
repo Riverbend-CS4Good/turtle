@@ -65,7 +65,7 @@
     bottom: 0;
     overflow: hidden;
     border: solid black 3px;
-    margin: 5vh 30px;
+    margin: 0px 30px 30px 30px;
 }
 
 #inner #turtle,
@@ -73,11 +73,11 @@
     position: absolute;
 }
 
-.left-side .content .spiff-container .spiff {
+/* .left-side .content .spiff-container .spiff {
     height: 30px;
     width: 30px;
     user-select: none;
-}
+} */
 
 .left-side .resizer {
     width: 4px;
