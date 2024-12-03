@@ -83,6 +83,25 @@
     background-color: white;
 }
 
+.container {
+    display: flex;
+}
+
+.line-numbers {
+    padding: 10px; 
+    background-color: #f0f0f0; 
+    border: 1px solid #ccc; 
+    text-align: right; 
+    user-select: none;
+}
+
+.edit {
+    overflow: auto; 
+}
+
+
+
+
 #editor {
     width: 100%;
     height: 100%; 
