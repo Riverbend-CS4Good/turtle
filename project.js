@@ -5,6 +5,8 @@ function updateLineNumbers() {
     const textArea = document.querySelector(".edit");
     const lineNumbers = document.querySelector(".line-numbers");
 
+    var tAWidth = parseInt(window.getComputedStyle(textArea).width, 10);
+
     const textAreaStyles = window.getComputedStyle(textArea);
     [
 	'fontFamily',
@@ -18,12 +20,15 @@ function updateLineNumbers() {
     });
 
 
+
     const lines = textArea.value.split("\n");
     const lineAmt = lines.length;
-    const lineLength = textArea["cols"];
+    const lineLength = Math.floor(tAWidth / parseInt(textAreaStyles['fontSize'].slice(0,2), 10));
+
     var plan = [];
     for (let i = 0; i <= lineAmt-1; i++) {
 	if (lines[i].length > lineLength) {
+	    console.log(lineLength, lines[i].length);
 	    plan.push(Math.floor(lines[i].length / lineLength) + 1);
 	} else {
 	    plan.push(1);
