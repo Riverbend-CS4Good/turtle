@@ -4,7 +4,11 @@
 var resizer = document.querySelector(".resizer")
 var leftSide = document.querySelector(".left-side")
 var coordsText = document.querySelector(".coords")
-var spiffContainer = document.querySelector(".spiff-container");
+var spiffContainer = document.querySelector("#inner");
+// let spiffContainer = document.getElementById('turtle');
+// let sandbox_canvas = document.getElementById('sandbox');
+// let turtle_ctx = turtle_canvas.getContext('2d');
+// let sandbox_ctx = sandbox_canvas.getContext('2d');
 
 function initResizer(resizer, leftSide, coordsText, spiffContainer) {
 	var x, w;
@@ -32,6 +36,7 @@ function initResizer(resizer, leftSide, coordsText, spiffContainer) {
 
 		var spiffContainerWidth = parseInt(window.getComputedStyle(spiffContainer).width, 10);
 		var spiffContainerHeight = parseInt(window.getComputedStyle(spiffContainer).height, 10);
+		resize();
 		coordsText.innerHTML = `Box size: ${spiffContainerWidth} x ${spiffContainerHeight}`;
 
 	}
@@ -53,10 +58,10 @@ coordsText.innerHTML = `Box size: ${spiffContainerWidth} x ${spiffContainerHeigh
 var editor = document.getElementById("editor");
 var coordsText = document.querySelector(".coords");
 
-editor.addEventListener("input", function() {
-  var content = editor.value;
-  var lineCount = content.split('\n').length; 
-  coordsText.innerHTML = `Lines: ${lineCount}`;
+editor.addEventListener("input", function () {
+	var content = editor.value;
+	var lineCount = content.split('\n').length;
+	coordsText.innerHTML = `Lines: ${lineCount}`;
 });
 
 
