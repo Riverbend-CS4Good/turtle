@@ -1,8 +1,36 @@
 "use strict";
 
+function lineNumbers() {
+    const textArea = document.querySelector(".editor");
+    const lineNumbers = document.querySelector(".line-numbers");
+
+    const textAreaStyles = window.getComputedStyle(textArea);
+    [
+	'fontFamily',
+	'fontSize',
+	'fontWeight',
+	'letterSpacing',
+	'lineHeight',
+	'padding',
+    ].forEach((property) => {
+	lineNumbers.style[property] = textAreaStyles[property];
+    });
+
+    const lines = textArea.value.split("\n");
+    const lineAmt = lines.length;
+
+
+
+    lineNumbers.innerHTML = '';
+
+    for (let i = 0; i < lineAmt; i++) {
+	lineNumbers.innerHTML += (i + 1) + '<br>';
+    }
+}
+
 // Editor line numbers
 function updateLineNumbers() {
-    const textArea = document.querySelector(".edit");
+    const textArea = document.querySelector(".editor");
     const lineNumbers = document.querySelector(".line-numbers");
 
     var tAWidth = parseInt(window.getComputedStyle(textArea).width, 10);
@@ -28,7 +56,7 @@ function updateLineNumbers() {
     var plan = [];
     for (let i = 0; i <= lineAmt-1; i++) {
 	if (lines[i].length > lineLength) {
-	    console.log(lineLength, lines[i].length);
+	    //	    console.log(lineLength, lines[i].length);
 	    plan.push(Math.floor(lines[i].length / lineLength) + 1);
 	} else {
 	    plan.push(1);
@@ -47,16 +75,17 @@ function updateLineNumbers() {
 
     }
 }
-
+/**
 function syncScroll() {
     const textArea = document.querySelector(".edit");
     const lineNumbers = document.querySelector(".line-numbers");
 
     lineNumbers.scrollTop = textArea.scrollTop;
 }
+**/
 
 document.addEventListener('DOMContentLoaded', () => { 
-    updateLineNumbers(); 
+    lineNumbers(); 
 }); 
 
 // Vertical movable divider
@@ -109,12 +138,14 @@ var spiffContainerHeight = parseInt(window.getComputedStyle(spiffContainer).heig
 coordsText.innerHTML = `Box size: ${spiffContainerWidth} x ${spiffContainerHeight}`;
 
 // update coordsText when you type
-var editor = document.getElementById("editor");
+var editor = document.querySelector(".editor");
 var coordsText = document.querySelector(".coords");
 
+editor.wrap = "off";
+
 editor.addEventListener("input", function() {
-  var content = editor.value;
-  var lineCount = content.split('\n').length; 
+    var content = editor.value;
+    var lineCount = content.split('\n').length; 
   coordsText.innerHTML = `Lines: ${lineCount}`;
 });
 
