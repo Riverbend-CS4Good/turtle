@@ -1,5 +1,6 @@
-const button = document.getElementsByClassName('run-button')[0];
-const forwardButton = document.getElementsByClassName('foward-button')[0];
+const runButton = document.getElementById('run-button');
+const saveButton = document.getElementById('save-button');
+const forwardButton = document.getElementById('forward-button');
 
 let isPaused = true; // Initial state is paused
 let lines = []; // Array to hold each line of the file
@@ -15,7 +16,7 @@ forwardButton.addEventListener("click", () => {
     isPaused = true;
 });
 
-button.addEventListener("click", () => {
+runButton.addEventListener("click", () => {
     if (isPaused) {
         isPaused = false;
         button.textContent = "Pause";
