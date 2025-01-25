@@ -5,7 +5,7 @@
   <title>Sample app</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <link rel="stylesheet" href="https://riverbendmath.org/css/main.css" type="text/css" />
-  <link rel="stylesheet" href="style.css" type="text/css" />
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
 </head>
 
 <body>
@@ -19,9 +19,13 @@
       </div>
       <div class="content">
         <div class="coords">Box size: </div>
-        <div class="spiff-container">
-          <img src="images/spiff.png" class="spiff">
+        <div id="inner">
+          <canvas id="sandbox"></canvas>
+          <canvas id="turtle"></canvas>
         </div>
+        <!-- <div class="spiff-container">
+          <img src="images/spiff.png" class="spiff">
+        </div> -->
       </div>
 
       <div class="resizer"></div>
@@ -41,8 +45,10 @@
     </div>
   </div>
   <!-- <script type="text/javascript" src="resizer.js"></script> -->
-  <script type="text/javascript" src="running_program.js"></script>
+
   <script type="text/javascript" src="project.js"></script>
+  <script type="text/javascript" src="./commands/movement_functions.js"></script>
+  <script type="text/javascript" src="running_program.js"></script>
 </body>
 
 </html>
