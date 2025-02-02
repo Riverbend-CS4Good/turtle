@@ -12,7 +12,7 @@ let intervalID = null;
 forwardButton.addEventListener("click", () => {
     clearInterval(intervalID);
     for(let i = currentLine; i < lines.length; i++) {
-        console.log(lines[i]);
+        printLine()
     }
     currentLine = lines.length;
     isPaused = true;
@@ -81,6 +81,7 @@ function printLine() {
         clearInterval(intervalID)
         if (currentLine >= lines.length) {
             runButton.textContent = "Finished";
+            currentLine = 0;
         }
     }
 }

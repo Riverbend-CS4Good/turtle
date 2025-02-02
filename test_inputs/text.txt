@@ -1,0 +1,17 @@
+dir 180
+fw 100 
+tr 90
+fw 100 
+tr 90
+fw 100 
+tr 90
+fw 100 
+tr 90
+bw 100 
+tl 90
+bw 100 
+tl 90
+bw 100 
+tl 90
+bw 100 
+tl 90
