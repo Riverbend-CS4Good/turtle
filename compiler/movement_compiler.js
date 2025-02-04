@@ -1,42 +1,4 @@
-// Import inputs for testing
-const movement_code = `
-dir 180;
-fw 100;
-tr 90;
-fw 100; 
-tr 90;
-fw 100; 
-tr 90;
-fw 100; 
-tr 90;
-bw 100; 
-tl 90;
-bw 100; 
-tl 90;
-bw 100; 
-tl 90;
-bw 100; 
-tl 90;
-`;
 
-const control_code = `
-if (x > 5) {
-    fw 10;
-} else {
-    bw 5;
-}
-`;
-
-const loop_code = `
-while (y < 20) {
-    fw 5;
-    y = y + 5;
-}
-
-for i = 0 to 5 {
-    fw 10;
-}
-`;
 
 // let turtle_canvas = document.getElementById('turtle');
 // let sandbox_canvas = document.getElementById('sandbox');
@@ -77,59 +39,32 @@ class Token {
     this.value = value
   }
 }
-/*
-TOKENKINDS
-0: ;
-1: MOVEMENT
-2: NUMBER
-3: IDENTIFIER
-4: OPEN_BRACKET
-5: CLOSE_BRACKET
-6: OPEN_CURLY
-7: CLOSE_CURLY
-8: OPEN_PAREN
-9: CLOSE_PAREN
-  // Equivilance
-10:EQUALS
-11:NOT_EQUALS
-12:ASSIGNMENT
-13:NOT
 
-  // Conditional
-14:LESS_EQUALS
-15:GREATER_EQUALS
-16:LESS
-17:GREATER
 
-18: PLUS
-19: MINUS
-
-*/
-// Lexer - takes inputs and creates tokens
-// Parser - takes tokens and produces an abstract syntax tree
-// Interpreter - uses the ast and interprets it on the fly, line per line
 const patterns = [
-  [-1, /^\s+/],
-  [0, /^;/],
-  [1, /^fw|^bw|^tl|^tr|^dir/],
-  [2, /^[0-9]+/],
-  [3, /^[a-zA-Z][a-zA-Z0-9_]*/],
-  [4, /^\[/],
-  [5, /^\]/],
-  [6, /^\{/],
-  [7, /^\}/],
-  [8, /^\(/],
-  [9, /^\)/],
-  [10, /^==/],
-  [11, /^!=/],
-  [12, /^=/],
-  [13, /^!/],
-  [14, /^<=/],
-  [15, /^>=/],
-  [16, /^</],
-  [17, /^>/],
-  [18, /^\+/],
-  [19, /^-/],
+  ["WS", /^[^\S\r\n]+/],
+  ["NL", /^\n/],
+  ["SC", /^;/],
+  ["C", /^,/],
+  ["CLEANUP", /^(clear|reset|spriteshow|spritehide|ss|sh)/],
+  ["MVMT", /^(fw|bw|tl|tr|dir|center|go|gox|goy|getx|gety)/],
+  ["DRAW", /^(penup|pendown|penwidth|pencolor|pu|pd|pw|pc)/],
+  ["CNV", /^(canvassize|canvascolor|cs|cc)/],
+  ["PRINT", /^(print|fontsize)/],
+  ["OTHER", /^(random|wait|message|ask)/],
+  ["CTRL", /^(if|else|while|repeat|for|to)/],
+  ["SBRTN", /^(learn)/],
+  ["VAR", /^\$[a-zA-Z]+/],
+  ["COM", /^#[^\n]+/],
+  ["NUM", /^[0-9]+/],
+  ["{", /^\{/],
+  ["}", /^\}/],
+  ["(", /^\(/],
+  [")", /^\)/],
+  ["BOOL", /^(==|!=|<=|>=|<|>|!|and|or|not)/],
+  ["ASSIGN", /^=/],
+  ["ARITH", /^(\+|-|\/|\*)/],
+  ["STR", /^"[^"]*"/]
 ]
 
 // Use regex if needed
@@ -137,31 +72,241 @@ function lexer(input) {
   let tokens = [];
   let src = input;
   while (src) {
+    let noMatch = true;
     for (const [type, pattern] of patterns) {
       matched = src.match(pattern)
       if (matched) {
-        console.log(matched[0])
-        if (type !== -1) {
-          const token = new Token(type, matched[0])
+        if (type !== "WS" && type !== "COM" && type !== "NL") {
+          let value = matched[0]
+          if (type === "NUM") {
+            value = Number(value)
+          } else if (type === "STR") {
+            value = value.slice(1, value.length - 1)
+          }
+          const token = new Token(type, value)
           tokens.push(token)
         }
         src = src.slice(matched[0].length)
+        noMatch = false
         break
       }
+    }
+    if (noMatch) {
+      return null;
     }
   }
 
   return tokens;
 }
+
+
+// Lexer - takes inputs and creates tokens
+// Parser - takes tokens and produces an abstract syntax tree
+// Interpreter - uses the ast and interprets it on the fly, line per line
+
 // function print(token) {
 
 // }
 
+class ASTNode {
+  constructor(type, value = null) {
+    this.type = type;
+    this.value = value;
+    this.children = [];
+  }
+}
+
 
 function parser(tokens) {
-  const ast = [];
+  let index = 0;
 
-  return ast;
+  function peek() {
+    return tokens[index] || null;
+  }
+
+  function consume(types) {
+    if (peek() && types.includes(peek().tokenKind)) {
+      let tokenKind = peek().tokenKind;
+      if (types.includes(tokenKind)) {
+        return tokens[index++];
+      }
+      throw new Error(`Expected ${types}, got ${peek()?.tokenKind}`);
+    }
+    throw new Error(`Expected ${types}, got ${peek()?.tokenKind}`);
+  }
+
+  function parseArithmetic() {
+    // acquire arithmetic expression up to next delimiter, comma or semicolon
+    let tokens = []
+    while (peek() && !(["SC", "C"].includes(peek().tokenKind))) {
+      tokens.push(consume(["ARITH", "NUM", "VAR"]))
+    }
+    consume(["SC", "C"])
+    console.log(tokens)
+    if (tokens.length % 2 == 0) {
+      throw new Error(`Improper Mathematical Expression`)
+    }
+    for (let i = 0; i < tokens.length; i++) {
+      if (i % 2 == 0 && !(["NUM", "VAR"].includes(tokens[i].tokenKind))) {
+        throw new Error(`Improper Mathematical Expression`)
+      } else if (i % 2 == 1 && !("ARITH" === tokens[i].tokenKind)) {
+        throw new Error(`Improper Mathematical Expression`)
+      }
+    }
+    tokens = tokens.map((token) => new ASTNode(token.tokenKind, token.value))
+
+    //parse multiplication/division
+    first = []
+    let i = 0
+    let n = tokens.length
+    while (i < n) {
+      if (["*", "/"].includes(tokens[i].value)) {
+        tokens[i].children.push(first.pop())
+        tokens[i].children.push(tokens[i + 1])
+        first.push(tokens[i])
+        i += 2
+      } else {
+        first.push(tokens[i])
+        i += 1
+      }
+    }
+    console.log(first)
+
+    //parse addition/subtraction
+    second = []
+    i = 0
+    n = first.length
+    while (i < n) {
+      if (["+", "-"].includes(first[i].value)) {
+        first[i].children.push(second.pop())
+        first[i].children.push(first[i + 1])
+        second.push(first[i])
+        i += 2
+      } else {
+        second.push(first[i])
+        i += 1
+      }
+    }
+    console.log("SECOND TIME")
+    console.log(second)
+    return second[0]
+  }
+
+  function parseCommand(type) {
+    let token = consume([type]);
+
+    let arguments = [];
+
+    // Handle movement commands
+    if (["clear", "reset", "ss", "spriteshow", "sh", "spritehide", "getx", "gety", "center", "pu", "penup", "pd", "pendown"].includes(token.value)) {
+      // These commands expect no arguments (e.g., getx;)
+      arguments = [];
+    } else if (["fw", "forward", "bw", "backward", "tl", "turnleft", "tr", "turnright", "dir", "direction", "gox", "goy", "penwidth", "pw", "fontsize", "wait"].includes(token.value)) {
+      // These commands expect 1 number argument (e.g., fw 100;)
+      let value = consume(["NUM", "VAR"]);
+      arguments.push({ type: value.tokenKind, value: value.value });  // Store the numeric value
+    } else if (["go", "cs", "canvassize", "random"].includes(token.value)) {
+      // The 'go' command expects 2 arguments (e.g., go 50 100;)
+      let value1 = consume(["NUM", "VAR"]);
+      consume("C");
+      let value2 = consume(["NUM", "VAR"]);
+      arguments.push({ type: value1.tokenKind, value: value1.value }, { type: value2.tokenKind, value: value2.value });
+    } else if (["pc", "cc"].includes(token.value)) {
+      // The 'go' command expects 3 number arguments (e.g., go 50 100;)
+      let value1 = consume(["NUM", "VAR"]);
+      consume("C");
+      let value2 = consume(["NUM", "VAR"]);
+      consume("C");
+      let value3 = consume(["NUM", "VAR"]);
+      arguments.push({ type: value1.tokenKind, value: value1.value }, { type: value2.tokenKind, value: value2.value }, { type: value3.tokenKind, value: value3.value });
+    } else if (["print", "message", "ask"].includes(token.value)) {
+      // These commands expect 1 number argument (e.g., fw 100;)
+      let value = consume(["STR", "VAR"]);
+      arguments.push({ type: value.tokenKind, value: value.value });  // Store the numeric value
+    } else {
+      // Handle unexpected command types
+      throw new Error(`Unexpected movement command: ${token.value}`);
+    }
+
+    consume("SC"); // Expecting `;`
+
+    return new ASTNode("Command", { type: token.value, children: arguments });
+  }
+  function parseAssignment() {
+    let token = consume(["VAR"]);
+    consume(["ASSIGN"]);
+    let value = consume(["NUM", "STR"]);
+    consume("SC")
+    return new ASTNode("Command", { type: token.value, value: 0, children: [value] });
+  }
+
+  function parseControlFlow() {
+    let token = consume("CTRL");
+
+    if (token.value === "if") {
+      return parseIfStatement();  // Calls the parseIfStatement() function
+    } else if (token.value === "while") {
+      return parseWhileStatement();  // Calls the parseWhileStatement() function
+    } else if (token.value === "for") {
+      return parseForLoop();  // Calls the parseForLoop() function
+    }
+
+    throw new Error(`Unexpected control flow keyword: ${token.value}`);
+  }
+
+  function parseIfStatement() {
+    consume("CTRL"); // `if`
+    consume("(");
+    let condition = parseExpression();
+    consume(")");
+    consume("{");
+    let body = parseBlock();
+    consume("}");
+    return new ASTNode("IfStatement", { condition, body });
+  }
+
+  function parseBlock() {
+    let block = new ASTNode("Block");
+    while (peek() && peek().tokenKind !== "}") {
+      block.children.push(parseStatement());
+    }
+    return block;
+  }
+
+  function skipNewlines() {
+    while (peek() && peek().tokenKind === "NL") {
+      index++;
+    }
+  }
+
+  function parseStatement() {
+    skipNewlines();  // Skip empty lines before parsing
+
+    if (peek() === null) return null; // Handle end of input safely
+
+    let token = peek();
+
+    if (token.tokenKind === "MVMT") return parseCommand("MVMT");
+    if (token.tokenKind === "CTRL") return parseControlFlow();
+    if (token.tokenKind === "VAR") return parseAssignment();
+    if (token.tokenKind === "DRAW") return parseCommand("DRAW");
+    if (token.tokenKind === "CNV") return parseCommand("CNV");
+    if (token.tokenKind === "SBRTN") return parseFunctionDefinition();
+    if (token.tokenKind === "PRINT") return parseCommand("PRINT");
+    if (token.tokenKind === "NUM") return parseArithmetic();
+
+    throw new Error(`Unexpected token: ${token.tokenKind} (${token.value})`);
+  }
+
+  function parseProgram() {
+    let program = new ASTNode("Program");
+    while (index < tokens.length) {
+      program.children.push(parseStatement());
+    }
+    return program;
+  }
+
+  return parseProgram();
 }
 
 function interpreter(ast) {
@@ -182,4 +327,23 @@ function interpreter(ast) {
 
   }
 }
-console.log(lexer(loop_code))
+
+function dfs(node) {
+  console.log(node.type, node.value);
+  for (const child of node.children) {
+    dfs(child)
+  }
+}
+let expr = "5*3-7+2+10/3;"
+function compiler(code) {
+  let tokens = lexer(code)
+  if (tokens === null) {
+    console.log("Error")
+    return
+  }
+  console.log(tokens)
+  let tree = parser(tokens);
+  dfs(tree)
+
+}
+compiler(expr)
