@@ -260,7 +260,7 @@ function parser(tokens) {
 
     let arguments = [];
 
-    // Handle movement commands
+    // Handle built in commands
     if (["clear", "reset", "ss", "spriteshow", "sh", "spritehide", "getx", "gety", "center", "pu", "penup", "pd", "pendown"].includes(token.value)) {
       // These commands expect no arguments (e.g., getx;)
       arguments = [];
@@ -268,22 +268,22 @@ function parser(tokens) {
     } else if (["fw", "forward", "bw", "backward", "tl", "turnleft", "tr", "turnright", "dir", "direction", "gox", "goy", "penwidth", "pw", "fontsize", "wait"].includes(token.value)) {
       // These commands expect 1 number argument (e.g., fw 100;)
       let value = parseArithmetic("SC")
-      arguments.push(value);  // Store the numeric value
+      arguments.push(value);
     } else if (["go", "cs", "canvassize", "random"].includes(token.value)) {
-      // The 'go' command expects 2 arguments (e.g., go 50 100;)
+      // The 'go' command expects 2 arguments (e.g., go 50, 100;)
       let value1 = parseArithmetic("C");
       let value2 = parseArithmetic("SC");
       arguments.push(value1, value2);
     } else if (["pc", "cc"].includes(token.value)) {
-      // The 'go' command expects 3 number arguments (e.g., go 50 100;)
+      // The 'go' command expects 3 number arguments (e.g., pc 50, 100, 250;)
       let value1 = parseArithmetic("C");
       let value2 = parseArithmetic("C");
       let value3 = parseArithmetic("SC");
       arguments.push(value1, value2, value3);
     } else if (["print", "message", "ask"].includes(token.value)) {
-      // These commands expect 1 number argument (e.g., fw 100;)
+      // These commands expect 1 string argument (e.g., print "Hello";)
       let value = parseString("SC");
-      arguments.push(value);  // Store the numeric value
+      arguments.push(value);
     } else {
       // Handle unexpected command types
       throw new Error(`Unexpected movement command: ${token.value}`);
@@ -292,7 +292,9 @@ function parser(tokens) {
 
     return new ASTNode(token.value, null, arguments);
   }
+
   function parseAssignment() {
+    // TODO: dunno how to handle string vs number
     let token = consume(["VAR"]);
     consume(["ASSIGN"]);
     let value = consume(["NUM", "STR"]);
@@ -301,20 +303,26 @@ function parser(tokens) {
   }
 
   function parseControlFlow() {
+    // TODO
     let token = consume("CTRL");
 
     if (token.value === "if") {
-      return parseIfStatement();  // Calls the parseIfStatement() function
+      return parseIfStatement();
     } else if (token.value === "while") {
-      return parseWhileStatement();  // Calls the parseWhileStatement() function
+      return parseWhileStatement();
     } else if (token.value === "for") {
-      return parseForLoop();  // Calls the parseForLoop() function
+      return parseForLoop();
+    } else if (token.value === "repeat") {
+      return parseForLoop();
+    } else if (token.value === "learn") {
+      return parseLearn();
     }
 
     throw new Error(`Unexpected control flow keyword: ${token.value}`);
   }
 
   function parseIfStatement() {
+    // TODO WRITTEN BY CHAT DID NOT LOOK
     consume("CTRL"); // `if`
     consume("(");
     let condition = parseExpression();
@@ -326,6 +334,7 @@ function parser(tokens) {
   }
 
   function parseBlock() {
+    // TODO WRITTEN BY CHAT DID NOT LOOK
     let block = new ASTNode("Block");
     while (peek() && peek().tokenKind !== "}") {
       block.children.push(parseStatement());
