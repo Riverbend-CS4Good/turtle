@@ -1,4 +1,30 @@
+// Import inputs for testing
+const movement_code = `
+dir 80 + 100*10/10;
+fw 100;
+center;
+go 100, 200;
+print "Hello World";
+`;
 
+const control_code = `
+if $x > 5 {
+    fw 10;
+} else {
+    bw 5;
+}
+`;
+
+const loop_code = `
+while $y < 20 {
+    fw 5;
+    $y = $y + 5;
+}
+
+for $i = 0 to 5 {
+    fw 10;
+}
+`;
 
 // let turtle_canvas = document.getElementById('turtle');
 // let sandbox_canvas = document.getElementById('sandbox');
@@ -109,10 +135,10 @@ function lexer(input) {
 // }
 
 class ASTNode {
-  constructor(type, value = null) {
+  constructor(type, value = null, children = []) {
     this.type = type;
     this.value = value;
-    this.children = [];
+    this.children = children;
   }
 }
 
@@ -135,14 +161,14 @@ function parser(tokens) {
     throw new Error(`Expected ${types}, got ${peek()?.tokenKind}`);
   }
 
-  function parseArithmetic() {
+  function parseArithmetic(delimiter) {
     // acquire arithmetic expression up to next delimiter, comma or semicolon
     let tokens = []
-    while (peek() && !(["SC", "C"].includes(peek().tokenKind))) {
+    while (peek() && delimiter !== peek().tokenKind) {
       tokens.push(consume(["ARITH", "NUM", "VAR"]))
     }
-    consume(["SC", "C"])
-    console.log(tokens)
+    consume(delimiter)
+    // console.log(tokens)
     if (tokens.length % 2 == 0) {
       throw new Error(`Improper Mathematical Expression`)
     }
@@ -153,8 +179,8 @@ function parser(tokens) {
         throw new Error(`Improper Mathematical Expression`)
       }
     }
-    tokens = tokens.map((token) => new ASTNode(token.tokenKind, token.value))
-
+    tokens = tokens.map((token) => new ASTNode(type = token.tokenKind, value = token.value))
+    // console.log(tokens)
     //parse multiplication/division
     first = []
     let i = 0
@@ -170,7 +196,7 @@ function parser(tokens) {
         i += 1
       }
     }
-    console.log(first)
+    // console.log(first)
 
     //parse addition/subtraction
     second = []
@@ -187,9 +213,46 @@ function parser(tokens) {
         i += 1
       }
     }
-    console.log("SECOND TIME")
-    console.log(second)
+    // console.log("SECOND TIME")
+    // console.log(second)
     return second[0]
+  }
+
+  function parseString(delimiter) {
+    // acquire string expression up to next delimiter, comma or semicolon
+    let tokens = []
+    while (peek() && delimiter !== peek().tokenKind) {
+      tokens.push(consume(["ARITH", "STR", "VAR"]))
+    }
+    consume(delimiter)
+    // console.log(tokens)
+    if (tokens.length % 2 == 0) {
+      throw new Error(`Improper String Expression`)
+    }
+    for (let i = 0; i < tokens.length; i++) {
+      if (i % 2 == 0 && !(["STR", "VAR"].includes(tokens[i].tokenKind))) {
+        throw new Error(`Improper String Expression`)
+      } else if (i % 2 == 1 && !("ARITH" === tokens[i].tokenKind && "+" === tokens[i].value)) {
+        throw new Error(`Improper String Expression`)
+      }
+    }
+    tokens = tokens.map((token) => new ASTNode(type = token.tokenKind, value = token.value))
+
+    first = []
+    let i = 0
+    let n = tokens.length
+    while (i < n) {
+      if (["+"].includes(tokens[i].value)) {
+        tokens[i].children.push(first.pop())
+        tokens[i].children.push(tokens[i + 1])
+        first.push(tokens[i])
+        i += 2
+      } else {
+        first.push(tokens[i])
+        i += 1
+      }
+    }
+    return first[0]
   }
 
   function parseCommand(type) {
@@ -201,43 +264,40 @@ function parser(tokens) {
     if (["clear", "reset", "ss", "spriteshow", "sh", "spritehide", "getx", "gety", "center", "pu", "penup", "pd", "pendown"].includes(token.value)) {
       // These commands expect no arguments (e.g., getx;)
       arguments = [];
+      consume("SC"); // Expecting `;`
     } else if (["fw", "forward", "bw", "backward", "tl", "turnleft", "tr", "turnright", "dir", "direction", "gox", "goy", "penwidth", "pw", "fontsize", "wait"].includes(token.value)) {
       // These commands expect 1 number argument (e.g., fw 100;)
-      let value = consume(["NUM", "VAR"]);
-      arguments.push({ type: value.tokenKind, value: value.value });  // Store the numeric value
+      let value = parseArithmetic("SC")
+      arguments.push(value);  // Store the numeric value
     } else if (["go", "cs", "canvassize", "random"].includes(token.value)) {
       // The 'go' command expects 2 arguments (e.g., go 50 100;)
-      let value1 = consume(["NUM", "VAR"]);
-      consume("C");
-      let value2 = consume(["NUM", "VAR"]);
-      arguments.push({ type: value1.tokenKind, value: value1.value }, { type: value2.tokenKind, value: value2.value });
+      let value1 = parseArithmetic("C");
+      let value2 = parseArithmetic("SC");
+      arguments.push(value1, value2);
     } else if (["pc", "cc"].includes(token.value)) {
       // The 'go' command expects 3 number arguments (e.g., go 50 100;)
-      let value1 = consume(["NUM", "VAR"]);
-      consume("C");
-      let value2 = consume(["NUM", "VAR"]);
-      consume("C");
-      let value3 = consume(["NUM", "VAR"]);
-      arguments.push({ type: value1.tokenKind, value: value1.value }, { type: value2.tokenKind, value: value2.value }, { type: value3.tokenKind, value: value3.value });
+      let value1 = parseArithmetic("C");
+      let value2 = parseArithmetic("C");
+      let value3 = parseArithmetic("SC");
+      arguments.push(value1, value2, value3);
     } else if (["print", "message", "ask"].includes(token.value)) {
       // These commands expect 1 number argument (e.g., fw 100;)
-      let value = consume(["STR", "VAR"]);
-      arguments.push({ type: value.tokenKind, value: value.value });  // Store the numeric value
+      let value = parseString("SC");
+      arguments.push(value);  // Store the numeric value
     } else {
       // Handle unexpected command types
       throw new Error(`Unexpected movement command: ${token.value}`);
     }
 
-    consume("SC"); // Expecting `;`
 
-    return new ASTNode("Command", { type: token.value, children: arguments });
+    return new ASTNode(token.value, null, arguments);
   }
   function parseAssignment() {
     let token = consume(["VAR"]);
     consume(["ASSIGN"]);
     let value = consume(["NUM", "STR"]);
     consume("SC")
-    return new ASTNode("Command", { type: token.value, value: 0, children: [value] });
+    return new ASTNode(token.value, 0, [value]);
   }
 
   function parseControlFlow() {
@@ -329,11 +389,12 @@ function interpreter(ast) {
 }
 
 function dfs(node) {
-  console.log(node.type, node.value);
+  console.log(node);
   for (const child of node.children) {
     dfs(child)
   }
 }
+
 let expr = "5*3-7+2+10/3;"
 function compiler(code) {
   let tokens = lexer(code)
@@ -341,9 +402,8 @@ function compiler(code) {
     console.log("Error")
     return
   }
-  console.log(tokens)
   let tree = parser(tokens);
-  dfs(tree)
+  // dfs(tree)
 
 }
-compiler(expr)
+compiler(movement_code)
