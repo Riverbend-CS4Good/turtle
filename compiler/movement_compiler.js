@@ -1,10 +1,13 @@
 // Import inputs for testing
+
 const movement_code = `
-dir 80 + 100*10/10;
+dir 10;
 fw 100;
 center;
+dir 180;
+fw 100;
 go 100, 200;
-print "Hello World";
+center;
 `;
 
 const control_code = `
@@ -26,38 +29,8 @@ for $i = 0 to 5 {
 }
 `;
 
-// let turtle_canvas = document.getElementById('turtle');
-// let sandbox_canvas = document.getElementById('sandbox');
-// let turtle_ctx = turtle_canvas.getContext('2d');
-// let sandbox_ctx = sandbox_canvas.getContext('2d');
-// let inner = document.getElementById('inner');
 
-function draw() {
-  drawturtle();
-  drawbackground();
-}
-function drawbackground() {
-  sandbox_ctx.beginPath();
-  sandbox_ctx.moveTo(middle[0] + prevPoints[0], middle[1] + prevPoints[1]);
-  sandbox_ctx.lineTo(middle[0] + displacement[0], middle[1] + displacement[1]);
-  sandbox_ctx.stroke();
-}
-
-function drawturtle() {
-  turtle_ctx.clearRect(0, 0, turtle_canvas.width, turtle_canvas.height);
-
-  turtle_ctx.save();
-
-  turtle_ctx.translate(middle[0] + displacement[0], middle[1] + displacement[1]);
-
-  turtle_ctx.rotate(angle + Math.PI / 2);
-
-  turtle_ctx.drawImage(img, -18, -18, 36, 36);
-
-  turtle_ctx.restore();
-}
-
-// TODO
+// Lexer - takes inputs and creates tokens
 class Token {
   constructor(tokenKind, value) {
     // tokenKind = CMD, NUM, 
@@ -65,7 +38,6 @@ class Token {
     this.value = value
   }
 }
-
 
 const patterns = [
   ["WS", /^[^\S\r\n]+/],
@@ -93,7 +65,6 @@ const patterns = [
   ["STR", /^"[^"]*"/]
 ]
 
-// Use regex if needed
 function lexer(input) {
   let tokens = [];
   let src = input;
@@ -118,22 +89,14 @@ function lexer(input) {
       }
     }
     if (noMatch) {
-      return null;
+      throw new Error(`Unexpected item`);
     }
   }
 
   return tokens;
 }
 
-
-// Lexer - takes inputs and creates tokens
 // Parser - takes tokens and produces an abstract syntax tree
-// Interpreter - uses the ast and interprets it on the fly, line per line
-
-// function print(token) {
-
-// }
-
 class ASTNode {
   constructor(type, value = null, children = []) {
     this.type = type;
@@ -142,7 +105,18 @@ class ASTNode {
   }
 }
 
+/*
+PARSER: HOW IT WORKS
 
+It goes through the lexer's token list.
+If it finds a command, it looks for whats expected next (an argument, maybe 2 or 3) and then semicolon.
+If it finds a variable, it looks for either a string or a numeric expression or string
+TODO: PARSING CONTROL SEQUENCE
+
+Right after a semicolon, any new set of things can be looked for.
+At anytime if it expects something and doesnt get it, it throws an error.
+AKA: gox; -> THis expects a number argument and doesnt get one; will throw error
+*/
 function parser(tokens) {
   let index = 0;
 
@@ -257,7 +231,6 @@ function parser(tokens) {
 
   function parseCommand(type) {
     let token = consume([type]);
-
     let arguments = [];
 
     // Handle built in commands
@@ -378,7 +351,11 @@ function parser(tokens) {
   return parseProgram();
 }
 
+// Interpreter - uses the ast and interprets it on the fly, line per line
+// TODO: NOT COMPLETE; ONLY PARSES PROGRAMS THAT ONLY HAVE MOVEMENT COMMANDS AND ONLY IF THEY ARE CORRECT
+// This does not work. Literally only works rn. Dont question it. Will work as long as no control sequence
 function interpreter(ast) {
+
   const turtleState = {
     displacement: [0, 0],
     angle: -Math.PI / 2,
@@ -388,31 +365,54 @@ function interpreter(ast) {
 
   };
 
-  ast.forEach((node) => {
-
+  ast.children.forEach((node) => {
+    // this only works if numbers are correctly given rn.
+    action(node.type, ...(node.children.map((n) => n.value)));
   })
 
-  function draw() {
-
-  }
 }
 
-function dfs(node) {
-  console.log(node);
+// Literally just for me to see if my AST generates as I expected it to
+function dfsprinttree(node, tabs = 0) {
+  spacing = ''
+  for (let i = 0; i < tabs; i++) {
+    spacing += '  '
+  }
+  console.log(spacing + node.tokenKind, node.type, node.value);
+  if (node.children.length == 0) return;
   for (const child of node.children) {
-    dfs(child)
+    dfsprinttree(child, tabs + 1)
   }
 }
 
-let expr = "5*3-7+2+10/3;"
+// Compiler tries to lex, parse, and then interpret code, catching errors along the way if they exist
 function compiler(code) {
-  let tokens = lexer(code)
-  if (tokens === null) {
-    console.log("Error")
-    return
+  let tokens;
+  try {
+    tokens = lexer(code)
+    // console.log(tokens)
+  } catch (e) {
+    console.log("Lexer error")
+    return;
   }
-  let tree = parser(tokens);
-  // dfs(tree)
+  let tree;
+  // try {
+  tree = parser(tokens);
+  // dfsprinttree(tree);
+  // console.log(tree);
+  // } catch (e) {
+  //   console.log("Parser Error")
+  //   return;
+  // }
+
+  try {
+    interpreter(tree);
+  } catch (e) {
+    console.log("Interpreter error")
+    return;
+  }
 
 }
-compiler(movement_code)
+
+// this test case for node js only, does not work in browser
+// compiler(movement_code)
