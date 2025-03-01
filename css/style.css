@@ -29,7 +29,7 @@
     background-color: gray;
 }
 
-.left-side .header {
+.right-side .header {
     text-align: center;
     user-select: none;
 }
@@ -75,7 +75,6 @@
 .right-side {
     flex-grow: 1;
     flex-direction: column;
-    padding: 3% 22px;
     display: flex; 
     justify-content: center;
     text-align: center;
@@ -86,6 +85,7 @@
 .container {
     display: flex;
     height: 100%;
+    width: 100%;
 }
 
 .line-numbers {
