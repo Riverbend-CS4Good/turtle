@@ -36,7 +36,11 @@ document.addEventListener('DOMContentLoaded', () => {
 var resizer = document.querySelector(".resizer")
 var leftSide = document.querySelector(".left-side")
 var coordsText = document.querySelector(".coords")
-var spiffContainer = document.querySelector(".spiff-container");
+var spiffContainer = document.querySelector("#inner");
+// let spiffContainer = document.getElementById('turtle');
+// let sandbox_canvas = document.getElementById('sandbox');
+// let turtle_ctx = turtle_canvas.getContext('2d');
+// let sandbox_ctx = sandbox_canvas.getContext('2d');
 
 function initResizer(resizer, leftSide, coordsText, spiffContainer) {
     var x, w;
