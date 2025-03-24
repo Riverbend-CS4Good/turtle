@@ -410,9 +410,9 @@ function parse(tokens) {
 
 // Interpreter - uses the ast and interprets it on the fly, line per line
 // TODO: NOT COMPLETE; WORKS ON VARS, EXPRESSIONS, ASSIGNMENT
-// Next, trigger movement commands (and others when built)
-// Incoporate Control Code
-
+// For: ASSIGN, VAR, NUM, STR, BOOL, EXPR, ARITH  returns [type, value]
+// Next: CLEANUP, MVMT, DRAW, CNV, PRINT, OTHER, trigger movement commands (and others when built)
+// After: CNTL
 
 /*
 FOR REFERENCE
