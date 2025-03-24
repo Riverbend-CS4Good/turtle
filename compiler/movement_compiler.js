@@ -412,7 +412,7 @@ function parse(tokens) {
 // TODO: NOT COMPLETE; WORKS ON VARS, EXPRESSIONS, ASSIGNMENT
 // For: ASSIGN, VAR, NUM, STR, BOOL, EXPR, ARITH  returns [type, value]
 // Next: CLEANUP, MVMT, DRAW, CNV, PRINT, OTHER, trigger movement commands (and others when built)
-// After: CNTL
+// After: CTRL for, repeat, while, if, else
 
 /*
 FOR REFERENCE
