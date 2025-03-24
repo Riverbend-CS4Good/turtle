@@ -1,5 +1,3 @@
-// Import inputs for testing
-
 const movement_code = `
 dir 10;
 fw 100;
@@ -9,23 +7,28 @@ fw 100;
 go 100, 200;
 center;
 `;
+
 const if_code = `
 if $x > 5 {
   fw 10;
 }
 `;
+
 const var_code = `
+$ve = "Hello";
+$de = "World";
+$me = $ve + $de;
 $x = 5 + 5 + 5;
-$q = $a < $b and $c > $d;
-$q = $isActive or $isValid;
-$q = not $isEmpty;
-$q = $x == 5 and $y != 10;
-$q = $status == "active" or $isLoggedIn;
-$q = not ($a == $b or $c == $d);
-$q = $score > 50 and not $isFinished;
-$q = $isReady or not $isPaused;
-$q = not ($a + $b == $c);
-$q = $x > $y and $z < 100;
+# $z = $ve + $x;
+$y = 3 * 8;
+$q = 1 < 3 and 3 > 4;
+$w = not $q;
+# $r = $w or $y;
+$e = $x == 5 and $y != 10;
+$u = not ($x == 15 or $y == $x);
+$o = $w or not $q;
+$p = not ($x + $y == 39);
+$a = $x > $y and 30 < 100;
 `
 
 const control_code = `
@@ -41,7 +44,8 @@ while $y < 20 {
     fw 5;
     $y = $y + 5;
 }
-`
+`;
+
 const for_code = `
 for $i = 0 to 5 {
     fw 10;
@@ -53,7 +57,6 @@ repeat 10 {
     fw 10;
 }
 `;
-
 
 // Lexer - takes inputs and creates tokens
 class Token {
@@ -77,7 +80,7 @@ const patterns = [
   ["OTHER", /^(random|wait|message|ask)/],
   ["CTRL", /^(if|else|while|repeat|for)/],
   ["TO", /^(to)/],
-  ["SBRTN", /^(learn)/],
+  // ["SBRTN", /^(learn)/],
   ["VAR", /^\$[a-zA-Z]+/],
   ["COM", /^#[^\n]+/],
   ["NUM", /^[0-9]+/],
@@ -91,7 +94,7 @@ const patterns = [
   ["STR", /^"[^"]*"/]
 ]
 
-function lexer(input) {
+function lex(input) {
   let tokens = [];
   let src = input;
   while (src) {
@@ -137,13 +140,13 @@ PARSER: HOW IT WORKS
 It goes through the lexer's token list.
 If it finds a command, it looks for whats expected next (an argument, maybe 2 or 3) and then semicolon.
 If it finds a variable, it looks for either a string or a numeric expression or string
-TODO: PARSING CONTROL SEQUENCE
+TODO: PARSING SUBROUTINE
 
 Right after a semicolon, any new set of things can be looked for.
 At anytime if it expects something and doesnt get it, it throws an error.
 AKA: gox; -> THis expects a number argument and doesnt get one; will throw error
 */
-function parser(tokens) {
+function parse(tokens) {
   let index = 0;
 
   function peek() {
@@ -209,7 +212,6 @@ function parser(tokens) {
       parseBinaryOperator(["==", "!="]); // Level 7
       parseBinaryOperator(["and"]); // Level 11
       parseBinaryOperator(["or"]); // Level 12
-
       if (expr.length !== 1) {
         throw new Error("Invalid Expression")
       }
@@ -277,21 +279,17 @@ function parser(tokens) {
       // Handle unexpected command types
       throw new Error(`Unexpected movement command: ${token.value}`);
     }
-
-
     return new ASTNode(token.value, null, arguments);
   }
 
   function parseAssignment() {
-    // TODO: dunno how to handle string vs number
     let token = consume(["VAR"]);
     consume(["ASSIGN"]);
     let value = parseExpression("SC");
-    return new ASTNode("VAR", token.value, [value]);
+    return new ASTNode("ASSIGN", token.value, [value]);
   }
 
   function parseControlFlow() {
-    // TODO
     let token = consume("CTRL");
 
     if (token.value === "if") {
@@ -346,7 +344,7 @@ function parser(tokens) {
     let var_to_assign = consume("VAR")
     consume("ASSIGN")
     // consume 'to'
-    let condition = new ASTNode("VAR", var_to_assign.value, [parseExpression("TO")]);
+    let condition = new ASTNode("ASSIGN", var_to_assign.value, [parseExpression("TO")]);
     // consume ending num
     let endingNum = new ASTNode("NUM", consume("NUM").value);
     // consume block
@@ -413,6 +411,15 @@ function parser(tokens) {
 // Interpreter - uses the ast and interprets it on the fly, line per line
 // TODO: NOT COMPLETE; ONLY PARSES PROGRAMS THAT ONLY HAVE MOVEMENT COMMANDS AND ONLY IF THEY ARE CORRECT
 // This does not work. Literally only works rn. Dont question it. Will work as long as no control sequence
+/*
+class ASTNode {
+  constructor(type, value = null, children = []) {
+    this.type = type;
+    this.value = value;
+    this.children = children;
+  }
+}
+*/
 function interpreter(ast) {
 
   const turtleState = {
@@ -423,11 +430,94 @@ function interpreter(ast) {
   const commands = {
 
   };
+  const variables = new Map()
+  function dfsExecute(node) {
+    // console.log(node)
+    if (node.type === 'Program') {
+      for (const command of node.children) {
+        console.log(dfsExecute(command))
+      }
+    } else if (node.type === 'ASSIGN') {
+      if (node.children.length !== 1) throw new Error(`Variable Assignment has too many arguments`);
+      const [type_a, a] = dfsExecute(node.children[0])
+      if (!(['NUM', 'STR', 'BOOL'].includes(type_a))) throw new Error(`Variable assignment error`);
+      variables.set(node.value, [type_a, a])
+      return [type_a, a]
+    } else if (node.type === 'VAR') {
+      try {
+        return variables.get(node.value)
+      } catch (e) {
+        throw new Error(`Variable not declared/assigned`);
+      }
+    } else if (node.type === 'Expression') {
+      if (node.children.length !== 1) throw new Error(`improper expression`);
+      return dfsExecute(node.children[0])
+    } else if (node.type === 'NUM') {
+      return ['NUM', node.value]
+    } else if (node.type === 'STR') {
+      return ['STR', node.value]
+    } else if (node.type === "ARITH") {
+      // ["ARITH", /^(\+|-|\/|\*)/],
+      if (node.children.length !== 2) throw new Error(`Variable Assignment has too many arguments`);
+      const [type_a, a] = dfsExecute(node.children[0])
+      const [type_b, b] = dfsExecute(node.children[1])
 
-  ast.children.forEach((node) => {
-    // this only works if numbers are correctly given rn.
-    action(node.type, ...(node.children.map((n) => n.value)));
-  })
+      if (node.value === '+') {
+        if (type_a === 'STR' && type_b === 'STR') {
+          return ['STR', a + b]
+        }
+        if (type_a === 'NUM' && type_b === 'NUM') {
+          return ['NUM', a + b]
+        }
+        throw new Error(`NUM/STR Expected but got ${a} ${node.value} ${b})`);
+      }
+      if (type_a !== 'NUM' || type_b !== 'NUM') throw new Error(`Num Expected but got ${a} ${node.value} ${b})`);
+      if (node.value === '-') {
+        return ['NUM', a - b]
+      } else if (node.value === '/') {
+        return ['NUM', a / b]
+      } else if (node.value === '*') {
+        return ['NUM', a * b]
+      }
+    } else if (node.type === "BOOL") {
+      // ["BOOL", /^(==|!=|<=|>=|<|>|and|or|not)/],
+      if (node.value === 'not') {
+        if (node.children.length !== 1) throw new Error(`'not' has too many arguments`);
+        const [type_a, a] = dfsExecute(node.children[0])
+        if (type_a !== 'BOOL') throw new Error(`BOOL Expected but got: ${a})`);
+        return ['BOOL', !a]
+      }
+      if (node.children.length !== 2) throw new Error(`Binary operator has incorrect # args`);
+      const [type_a, a] = dfsExecute(node.children[0])
+      const [type_b, b] = dfsExecute(node.children[1])
+      if (['and', 'or'].includes(node.value)) {
+        if (type_a !== 'BOOL' || type_b !== 'BOOL') throw new Error(`BOOL Expected but got ${a} ${node.value} ${b})`);
+        if (node.value === 'and') {
+          return ['BOOL', a && b]
+        } else if (node.value === 'or') {
+          return ['BOOL', a || b]
+        }
+      } else if (['==', '!=', '<=', '>=', '<', '>'].includes(node.value)) {
+        if (type_a !== 'NUM' || type_b !== 'NUM') throw new Error(`NUM Expected but got: ${a} ${node.value} ${b})`);
+        if (node.value === '==') {
+          return ['BOOL', a == b]
+        } else if (node.value === '!=') {
+          return ['BOOL', a !== b]
+        } else if (node.value === '<=') {
+          return ['BOOL', a <= b]
+        } else if (node.value === '>=') {
+          return ['BOOL', a >= b]
+        } else if (node.value === '<') {
+          return ['BOOL', a < b]
+        } else if (node.value === '>') {
+          return ['BOOL', a > b]
+        }
+      }
+
+
+    }
+  }
+  return dfsExecute(ast);
 
 }
 
@@ -448,32 +538,32 @@ function dfsprinttree(node, tabs = 0) {
 function compiler(code) {
   let tokens;
   try {
-    tokens = lexer(code)
-    console.log(tokens)
+    tokens = lex(code)
+    // console.log(tokens)
   } catch (e) {
     console.log("Lexer error")
     return;
   }
+
   let tree;
-  // try {
-  tree = parser(tokens);
-  dfsprinttree(tree);
-  // console.log(tree);
-  // } catch (e) {
-  //   console.log("Parser Error")
-  //   return;
-  // }
+  try {
+    tree = parse(tokens);
+    dfsprinttree(tree);
+  } catch (e) {
+    console.log("Parser Error")
+    return;
+  }
   console.log("")
   console.log("")
   console.log("")
   console.log("")
   console.log("")
-  // try {
-  //   interpreter(tree);
-  // } catch (e) {
-  //   console.log("Interpreter error")
-  //   return;
-  // }
+  try {
+    interpreter(tree);
+  } catch (e) {
+    console.log(`Interpreter ${e}`)
+    return;
+  }
 
 
 }
@@ -482,11 +572,9 @@ function compiler(code) {
 // compiler(control_code)
 // compiler(movement_code)
 // compiler(while_code)
-compiler(rep_code)
-
-// compiler(var_code)
-// let lines = var_code.split('\n');
-// for (let line of lines) {
-//   console.log(line)
-//   compiler(line);
-// }
+compiler(var_code)
+// compiler('$x = 5 + 5 + 5;')
+// compiler(`$x = 5 + 5 + 5;
+// $y = 3 * 8;
+// $q = 1 < 3 and 3 > 4;`)
+// compiler((`$x = 1 < 3;`))
