@@ -554,16 +554,14 @@ function compiler(code) {
   let tree;
   try {
     tree = parse(tokens);
-    dfsprinttree(tree);
+    // dfsprinttree(tree);
+    // console.log("")
+    // console.log("")
   } catch (e) {
     console.log("Parser Error")
     return;
   }
-  console.log("")
-  console.log("")
-  console.log("")
-  console.log("")
-  console.log("")
+
   try {
     interpreter(tree);
   } catch (e) {
