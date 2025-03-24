@@ -409,9 +409,14 @@ function parse(tokens) {
 }
 
 // Interpreter - uses the ast and interprets it on the fly, line per line
-// TODO: NOT COMPLETE; ONLY PARSES PROGRAMS THAT ONLY HAVE MOVEMENT COMMANDS AND ONLY IF THEY ARE CORRECT
-// This does not work. Literally only works rn. Dont question it. Will work as long as no control sequence
+// TODO: NOT COMPLETE; WORKS ON VARS, EXPRESSIONS, ASSIGNMENT
+// Next, trigger movement commands (and others when built)
+// Incoporate Control Code
+
+
 /*
+FOR REFERENCE
+____________________________________
 class ASTNode {
   constructor(type, value = null, children = []) {
     this.type = type;
@@ -420,6 +425,7 @@ class ASTNode {
   }
 }
 */
+
 function interpreter(ast) {
 
   const turtleState = {
