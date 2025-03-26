@@ -50,24 +50,25 @@ function getInput() {
 
 
 // This literally just takes the arguments from the interpreter and is a big switch statement
-function action(arg1, arg2, arg3) {
-    if (arg1 === 'fw' || arg1 === 'bw' || arg1 === 'forward' || arg1 === 'backward') {
-        move(arg1, arg2);
-    } else if (arg1 === 'tl' || arg1 === 'tr' || arg1 === 'turnleft' || arg1 === 'turnright') {
-        turn(arg1, arg2);
-    } else if (arg1 === 'direction' || arg1 === 'dir') {
-        setDirection(arg2);
-    } else if (arg1 === 'go') {
-        go(arg2, arg3);
-    } else if (arg1 === 'center') {
-        go(0, 0);
-    } else if (arg1 === 'gox') {
-        go(arg2, null);
-    } else if (arg1 === 'goy') {
-        go(null, arg2);
-    } else {
-        console.log('Wrong usage.');
-    }
+function action(CMD, args) {
+    print(CMD, args);
+    // if (arg1 === 'fw' || arg1 === 'bw' || arg1 === 'forward' || arg1 === 'backward') {
+    //     move(arg1, arg2);
+    // } else if (arg1 === 'tl' || arg1 === 'tr' || arg1 === 'turnleft' || arg1 === 'turnright') {
+    //     turn(arg1, arg2);
+    // } else if (arg1 === 'direction' || arg1 === 'dir') {
+    //     setDirection(arg2);
+    // } else if (arg1 === 'go') {
+    //     go(arg2, arg3);
+    // } else if (arg1 === 'center') {
+    //     go(0, 0);
+    // } else if (arg1 === 'gox') {
+    //     go(arg2, null);
+    // } else if (arg1 === 'goy') {
+    //     go(null, arg2);
+    // } else {
+    //     console.log('Wrong usage.');
+    // }
 }
 
 //functions

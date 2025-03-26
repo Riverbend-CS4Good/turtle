@@ -32,6 +32,7 @@ $a = $x > $y and 30 < 100;
 `
 
 const control_code = `
+$x = 10;
 if $x > 5 {
     fw 10;
 } else {
@@ -40,6 +41,7 @@ if $x > 5 {
 `;
 
 const while_code = `
+$y = 0;
 while $y < 20 {
     fw 5;
     $y = $y + 5;
@@ -309,11 +311,11 @@ function parse(tokens) {
 
   function parseIfStatement() {
     //parse condition
-    let condition = new ASTNode('Condition', null, [parseExpression("{")])
+    let condition = new ASTNode('CONDITION', null, [parseExpression("{")])
 
     // parse if block
     let body1 = parseBlock();
-    body1.value = "if";
+    // body1.value = "if";
     consume("}");
 
     // parse else block if exists, else empty
@@ -324,19 +326,19 @@ function parse(tokens) {
       body2 = parseBlock();
       consume("}");
     }
-    body2.value = "else";
-    return new ASTNode("If", null, [condition, body1, body2])
+    // body2.value = "else";
+    return new ASTNode("IF", null, [condition, body1, body2])
   }
 
   function parseWhileStatement() {
     //parse while condition
-    let condition = new ASTNode('Condition', null, [parseExpression("{")])
+    let condition = new ASTNode('CONDITION', null, [parseExpression("{")])
 
     //parse while block
     let body = parseBlock();
-    body.value = "while";
+    // body.value = "while";
     consume("}");
-    return new ASTNode("While", null, [condition, body])
+    return new ASTNode("WHILE", null, [condition, body])
   }
 
   function parseForLoop() {
@@ -350,7 +352,7 @@ function parse(tokens) {
     // consume block
     consume("{");
     let body = parseBlock();
-    body.value = "FOR";
+    // body.value = "FOR";
     consume("}");
     return new ASTNode("FOR", null, [condition, endingNum, body])
   }
@@ -360,13 +362,13 @@ function parse(tokens) {
     // consume block
     consume("{");
     let body = parseBlock();
-    body.value = "REPEAT";
+    // body.value = "REPEAT";
     consume("}");
     return new ASTNode("REPEAT", null, [endingNum, body])
   }
 
   function parseBlock() {
-    let block = new ASTNode("Block");
+    let block = new ASTNode("BLOCK");
     while (peek() && peek().tokenKind !== "}") {
       block.children.push(parseStatement());
     }
@@ -438,8 +440,7 @@ function interpreter(ast) {
   };
   const variables = new Map()
   function dfsExecute(node) {
-    // console.log(node)
-    if (node.type === 'Program') {
+    if (node.type === 'Program' || node.type === 'BLOCK') {
       for (const command of node.children) {
         console.log(dfsExecute(command))
       }
@@ -450,11 +451,9 @@ function interpreter(ast) {
       variables.set(node.value, [type_a, a])
       return [type_a, a]
     } else if (node.type === 'VAR') {
-      try {
-        return variables.get(node.value)
-      } catch (e) {
-        throw new Error(`Variable not declared/assigned`);
-      }
+      let value = variables.get(node.value)
+      if (value === undefined) throw new Error(`${node.value} not declared/assigned`);
+      return value
     } else if (node.type === 'Expression') {
       if (node.children.length !== 1) throw new Error(`improper expression`);
       return dfsExecute(node.children[0])
@@ -519,8 +518,47 @@ function interpreter(ast) {
           return ['BOOL', a > b]
         }
       }
-
-
+    } else if (["fw", "forward", "bw", "backward", "tl", "turnleft", "tr", "turnright", "dir", "direction", "gox", "goy", "penwidth", "pw", "fontsize", "wait", "clear", "reset", "ss", "spriteshow", "sh", "spritehide", "getx", "gety", "center", "pu", "penup", "pd", "pendown", "go", "cs", "canvassize", "random", "pc", "cc", "print", "message", "ask"].includes(node.type)) {
+      // TODO: CLEANUP, MVMT, DRAW, CNV, PRINT, OTHER
+      args = []
+      for (const children of node.children) {
+        args.push(dfsExecute(children))
+      }
+      return (node.type + ': ' + args)
+    } else if (node.type === 'IF') {
+      // TODO: IF
+      let temp = dfsExecute(node.children[0].children[0]);
+      let condition = temp[1]
+      block = condition ? node.children[1] : node.children[2];
+      dfsExecute(block)
+    } else if (node.type === 'WHILE') {
+      // TODO: WHILE
+      console.log(node.children[0].children[0])
+      let temp = dfsExecute(node.children[0].children[0]);
+      let condition = temp[1]
+      while (condition) {
+        dfsExecute(node.children[1])
+        temp = dfsExecute(node.children[0].children[0]);
+        condition = temp[1]
+      }
+    } else if (node.type === 'FOR') {
+      // TODO: FOR
+      let var_name = node.children[0].value;
+      let [type, _] = dfsExecute(node.children[0]); // sets variable
+      if (type !== 'NUM') throw new Error(`Expected NUM  got ${type}`);
+      let condition = variables.get(var_name)[1] < node.children[1].value;
+      console.log(variables.get(var_name)[1], node.children[1].value, condition)
+      while (condition) {
+        dfsExecute(node.children[2])
+        variables.set(var_name, ["NUM", variables.get(var_name)[1] + 1])
+        condition = variables.get(var_name)[1] < node.children[1].value;
+      }
+    } else if (node.type === 'REPEAT') {
+      // TODO: REPEAT
+      let end = node.children[0].value;
+      for (let i = 0; i < end; i++) {
+        dfsExecute(node.children[1])
+      }
     }
   }
   return dfsExecute(ast);
@@ -576,7 +614,9 @@ function compiler(code) {
 // compiler(control_code)
 // compiler(movement_code)
 // compiler(while_code)
-compiler(var_code)
+// compiler(for_code)
+// compiler(rep_code)
+// compiler(var_code)
 // compiler('$x = 5 + 5 + 5;')
 // compiler(`$x = 5 + 5 + 5;
 // $y = 3 * 8;
