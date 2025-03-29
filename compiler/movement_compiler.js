@@ -75,7 +75,7 @@ const patterns = [
   ["SC", /^;/],
   ["C", /^,/],
   ["CLEANUP", /^(clear|reset|spriteshow|spritehide|ss|sh)/],
-  ["MVMT", /^(fw|bw|tl|tr|dir|center|go|gox|goy|getx|gety)/],
+  ["MVMT", /^(fw|forward|bw|backward|tl|turnleft|tr|turnright|direction|dir|center|gox|goy|go|getx|gety)/],
   ["DRAW", /^(penup|pendown|penwidth|pencolor|pu|pd|pw|pc)/],
   ["CNV", /^(canvassize|canvascolor|cs|cc)/],
   ["PRINT", /^(print|fontsize)/],
@@ -389,6 +389,7 @@ function parse(tokens) {
     let token = peek();
 
     if (token.tokenKind === "MVMT") return parseCommand("MVMT");
+    if (token.tokenKind === "CLEANUP") return parseCommand("CLEANUP");
     if (token.tokenKind === "CTRL") return parseControlFlow();
     if (token.tokenKind === "VAR") return parseAssignment();
     if (token.tokenKind === "DRAW") return parseCommand("DRAW");
@@ -524,7 +525,7 @@ function interpreter(ast) {
       for (const children of node.children) {
         args.push(dfsExecute(children))
       }
-      return (node.type + ': ' + args)
+      return action(node.type, args)
     } else if (node.type === 'IF') {
       // TODO: IF
       let temp = dfsExecute(node.children[0].children[0]);
@@ -583,20 +584,20 @@ function compiler(code) {
   let tokens;
   try {
     tokens = lex(code)
-    // console.log(tokens)
+    console.log(tokens)
   } catch (e) {
-    console.log("Lexer error")
+    console.log("Lexer error:", e)
     return;
   }
 
   let tree;
   try {
     tree = parse(tokens);
-    // dfsprinttree(tree);
-    // console.log("")
-    // console.log("")
+    dfsprinttree(tree);
+    console.log("")
+    console.log("")
   } catch (e) {
-    console.log("Parser Error")
+    console.log("Parser Error:", e)
     return;
   }
 
