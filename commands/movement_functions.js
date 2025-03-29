@@ -51,6 +51,7 @@ function getInput() {
 
 // This literally just takes the arguments from the interpreter and is a big switch statement
 // Create dictionary to : type check, arg check, send args to command.
+// dummy function means did not yet implement
 const actions_dict = {
     // move
     fw: [move, ["NUM"], new Set([0]), ['fw', 0]],

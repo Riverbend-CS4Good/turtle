@@ -412,10 +412,16 @@ function parse(tokens) {
 }
 
 // Interpreter - uses the ast and interprets it on the fly, line per line
-// TODO: NOT COMPLETE; WORKS ON VARS, EXPRESSIONS, ASSIGNMENT
-// For: ASSIGN, VAR, NUM, STR, BOOL, EXPR, ARITH  returns [type, value]
-// Next: CLEANUP, MVMT, DRAW, CNV, PRINT, OTHER, trigger movement commands (and others when built)
-// After: CTRL for, repeat, while, if, else
+// ASSIGN, VAR, NUM, STR, BOOL, EXPR, ARITH  returns [type, value]
+// CLEANUP, MVMT, DRAW, CNV, PRINT, OTHER, trigger movement commands (and others when built) returns true if action was completed, false if failed
+// CTRL for, repeat, while, if, else returns undefined rn.
+/* 
+  Steps for ctrl if applicable
+  for: initializes variable
+  while, repeat, for, if: checks condition
+  while, repeat, for, if: executes accordingly
+  while, repeat, for: goes back to check condition 
+*/
 
 /*
 FOR REFERENCE
@@ -584,7 +590,8 @@ function compiler(code) {
   let tokens;
   try {
     tokens = lex(code)
-    console.log(tokens)
+    // console.log(tokens)
+    console.log("Lexer Success")
   } catch (e) {
     console.log("Lexer error:", e)
     return;
@@ -593,9 +600,10 @@ function compiler(code) {
   let tree;
   try {
     tree = parse(tokens);
-    dfsprinttree(tree);
-    console.log("")
-    console.log("")
+    // dfsprinttree(tree);
+    // console.log("")
+    // console.log("")
+    console.log("Parser Success")
   } catch (e) {
     console.log("Parser Error:", e)
     return;
@@ -603,6 +611,7 @@ function compiler(code) {
 
   try {
     interpreter(tree);
+    console.log("Interpreter Success")
   } catch (e) {
     console.log(`Interpreter ${e}`)
     return;
